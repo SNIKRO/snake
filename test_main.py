@@ -1,5 +1,6 @@
 from random import randint
 from field_draw import *
+import curses
 
 draw_field(20, 60, 0, 0)
 snake = [(4, 10), (4, 9), (4, 8)]
@@ -41,7 +42,8 @@ while key != ESC:
     if x in (0, 59):
         break
 
-    if snake[0] in snake[1:]: break
+    if snake[0] in snake[1:]:
+        break
 
     if snake[0] == food:
         score += 1
