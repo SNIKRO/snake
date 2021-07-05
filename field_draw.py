@@ -10,6 +10,7 @@ def draw_field(lines, colums, y, x):
     curses.curs_set(0)
     win.border(0)
     win.nodelay(1)
+    win.timeout(100)
 
 
 def end():
