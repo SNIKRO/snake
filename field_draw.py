@@ -13,7 +13,7 @@ def draw_field(lines, colums, y, x):
     win.timeout(100)
 
 
-def end():
+def end_win():
     curses.endwin()
 
 
@@ -24,5 +24,5 @@ def win_add(num1, num2, word, test):
         win.addstr(num1, num2, word)
 
 
-def event():
+def key_listner():
     return win.getch()
