@@ -1,10 +1,12 @@
 from random import randint
 
 from client import Client, end_win
+from collision import Collision
 from movement import Movement
 
 client = Client(20, 60, 0, 0)
 movement = Movement(client)
+collision = Collision(client)
 snake = [(4, 8), (4, 9), (4, 10)]
 food = (10, 20)
 
@@ -15,9 +17,7 @@ key = None
 while key != Client.ESC:
     key = client.key_listener()
     x, y = movement.handle_snake_step(snake, key)
-    if (y, x) in snake[:-1]:
-        break
-    if y in (0, 19) or x in (0, 59):
+    if collision.snake_crash(snake,y, x):
         break
     snake.append((y, x))  # append 0(n)
 
