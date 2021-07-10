@@ -1,38 +1,20 @@
 from random import randint
-from field_draw import *
-import curses
 
-draw_field(20, 60, 0, 0)
+from client import Client, end_win
+from movement import Movement
+
+client = Client(20, 60, 0, 0)
+movement = Movement(client)
 snake = [(4, 10), (4, 9), (4, 8)]
 food = (10, 20)
 
-win_add(food[0], food[1], '#', 1)
-
 score = 0
 
-ESC = 27
+key = None
 
-key = curses.KEY_RIGHT
-
-while key != ESC:
-    prev_key = key
-    new_key = key_listner()
-    key = new_key if new_key != -1 else prev_key
-
-    if key not in [curses.KEY_LEFT, curses.KEY_RIGHT, curses.KEY_UP, curses.KEY_DOWN, ESC]:
-        key = prev_key
-
-    y = snake[0][0]
-    x = snake[0][1]
-    if key == curses.KEY_DOWN:
-        y += 1
-    if key == curses.KEY_UP:
-        y -= 1
-    if key == curses.KEY_RIGHT:
-        x += 1
-    if key == curses.KEY_LEFT:
-        x -= 1
-
+while key != Client.ESC:
+    key = client.key_listener()
+    x, y = movement.handle_snake_step(snake, key)
     snake.insert(0, (y, x))  # append 0(n)
 
     if y in (0, 19):
@@ -54,13 +36,13 @@ while key != ESC:
     else:
         last = snake.pop()
 
-    win_add(0, 2, f'Score: {score}', 2)
-    win_add(food[0], food[1], '#', 1)
-    win_add(last[0], last[1], ' ', 1)
-    win_add(snake[0][0], snake[0][1], '*', 1)
+    client.draw(0, 2, f'Score: {score}', 2)
+    client.draw(food[0], food[1], '#', 1)
+    client.draw(last[0], last[1], ' ', 1)
+    client.draw(snake[0][0], snake[0][1], '*', 1)
 
 end_win()
-if key == ESC:
+if key == Client.ESC:
     print("Game Over")
 else:
     print("You lose")
