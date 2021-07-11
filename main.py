@@ -1,68 +1,45 @@
-import curses
 from random import randint
 
-curses.initscr()
-win = curses.newwin(20, 60, 0, 0)
-win.keypad(1)
-curses.noecho()
-curses.curs_set(0)
-win.border(0)
-win.nodelay(1)
+from client import Client, end_win
+from collision import Collision
+from movement import Movement
 
-snake = [(4, 10), (4, 9), (4, 8)]
+client = Client(20, 60, 0, 0)
+movement = Movement(client)
+collision = Collision(client)
+snake = [(4, 8), (4, 9), (4, 10)]
 food = (10, 20)
-
-win.addch(food[0], food[1], '#')
 
 score = 0
 
-ESC = 27
-key = curses.KEY_RIGHT
+key = None
 
-while key != ESC:
-    win.addstr(0, 2, f'Score: {score}')
-    win.timeout(150 - (len(snake)) // 5 + len(snake) // 10 % 120)  # speed increase
-
-    prev_key = key
-    event = win.getch()
-    key = event if event != -1 else prev_key
-
-    if key not in [curses.KEY_LEFT, curses.KEY_RIGHT, curses.KEY_UP, curses.KEY_DOWN, ESC]:
-        key = prev_key
-
-    y = snake[0][0]
-    x = snake[0][1]
-    win.addstr(0, 11, f"x = {x} y = {y}")
-    if key == curses.KEY_DOWN:
-        y += 1
-    if key == curses.KEY_UP:
-        y -= 1
-    if key == curses.KEY_RIGHT:
-        x += 1
-    if key == curses.KEY_LEFT:
-        x -= 1
-    snake.insert(0, (y, x))  # append 0(n)
-
-    if y in (0, 19):
+while key != Client.ESC:
+    key = client.key_listener()
+    x, y = movement.handle_snake_step(snake, key)
+    if collision.snake_crash(snake,y, x):
         break
-    if x in (0, 59):
-        break
+    snake.append((y, x))  # append 0(n)
 
-    if snake[0] in snake[1:]: break
-
-    if snake[0] == food:
+    if snake[-1] == food:
         score += 1
-        food = ()
-        while food == ():
+        food = None
+        while food is None:
             food = (randint(1, 18), randint(1, 58))
             if food in snake:
-                food = ()
-        win.addch(food[0], food[1], '#')
+                food = None
     else:
-        last = snake.pop()
-        win.addch(last[0], last[1], ' ')
+        tail = snake.pop(0)
+        client.draw(tail[0], tail[1], ' ', 1)
 
-    win.addch(snake[0][0], snake[0][1], '*')
+    client.draw(0, 2, f'Score: {score}', 2)
+    client.draw(food[0], food[1], '#', 1)
 
-curses.endwin()
+    client.draw(snake[-1][0], snake[-1][1], '*', 1)
+
+end_win()
+if key == Client.ESC:
+    print("Game Over")
+else:
+    print("You lose")
 print(f'Final score : {score}')
